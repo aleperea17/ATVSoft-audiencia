@@ -14,7 +14,6 @@ class Reel(db.Entity):
     permalink = Optional(str)
     thumbnail_url = Optional(LongStr)
     published_at = Optional(datetime)
-    keyword = Optional(str)
     comentarios_sync_at = Optional(datetime)
     interacciones = Set("Interaccion")
 

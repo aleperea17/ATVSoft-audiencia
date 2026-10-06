@@ -1,17 +1,11 @@
 import time
-from types import SimpleNamespace
 
 import pytest
 from fastapi import HTTPException
 
 from src.auth import sign_session, verify_session_token
-from src.classification_json import (
-    ClassificationParseError,
-    apply_rubric_gate,
-    parse_claude_stdout,
-)
+from src.classification_json import ClassificationParseError, parse_claude_stdout
 from src.graph_errors import is_profile_unavailable, is_rate_limit, is_unsupported_verified_field
-from src.keyword_match import pick_reel_for_keyword
 from src.metrics import pct_calificado
 from src.services.graph_client import redact
 
@@ -19,37 +13,10 @@ from src.services.graph_client import redact
 SECRET = "a" * 32
 
 
-def _reel(**kwargs):
-    base = {"keyword": None, "caption": "", "published_at": None, "id": 1}
-    base.update(kwargs)
-    return SimpleNamespace(**base)
-
-
 def test_pct_vacio_y_un_decimal():
     assert pct_calificado(0, 0) == 0.0
     assert pct_calificado(1, 3) == 33.3
     assert pct_calificado(2, 2) == 100.0
-
-
-def test_keyword_exacta_y_por_caption():
-    viejo = _reel(id=1, keyword="escala", published_at=time_at(1))
-    nuevo = _reel(id=2, keyword="escala", published_at=time_at(5))
-    elegido, persistir = pick_reel_for_keyword([viejo, nuevo], "ESCALA")
-    assert elegido.id == 2
-    assert persistir is False
-
-    sin_kw = _reel(id=3, caption="Comenta ESCALA para ver el programa", published_at=time_at(3))
-    otro = _reel(id=4, keyword="otra", caption="Comenta ESCALA", published_at=time_at(9))
-    elegido, persistir = pick_reel_for_keyword([otro, sin_kw], "escala")
-    assert elegido.id == 3
-    assert persistir is True
-    assert pick_reel_for_keyword([otro], "escala")[0] is None
-
-
-def time_at(day):
-    from datetime import datetime
-
-    return datetime(2026, 1, day)
 
 
 def test_sesion_hmac():
@@ -63,15 +30,11 @@ def test_sesion_hmac():
         verify_session_token(vencido, SECRET)
 
 
-def test_parse_claude_y_compuerta():
+def test_parse_claude():
     raw = '{"type":"result","is_error":false,"result":"{\\"calificado\\": true, \\"avatar\\": \\"infoproductor\\", \\"score\\": 80, \\"motivo\\": \\"Vende mentoría\\"}"}'
     parsed = parse_claude_stdout(raw)
-    gated = apply_rubric_gate(parsed, True)
-    assert gated["calificado"] is True
-    assert apply_rubric_gate(parsed, None)["calificado"] is False
-    assert apply_rubric_gate(parsed, False)["calificado"] is False
-    otro = dict(parsed, avatar="otro", calificado=True)
-    assert apply_rubric_gate(otro, True)["calificado"] is False
+    assert parsed["calificado"] is True
+    assert parsed["avatar"] == "infoproductor"
     with pytest.raises(ClassificationParseError):
         parse_claude_stdout('{"calificado": true}')
 
@@ -90,11 +53,18 @@ def test_rate_limit_y_verificado():
     assert redact("https://x?access_token=secreto&fields=a") == "https://x?access_token=REDACTED&fields=a"
 
 
-def test_nginx_webhooks_no_recorta_el_prefijo():
+def test_discovery_no_pide_verificado():
+    from src.services.instagram_service import _DISCOVERY_FIELDS
+
+    assert "is_verified" not in _DISCOVERY_FIELDS
+
+
+def test_nginx_api_no_recorta_el_prefijo():
     from pathlib import Path
 
     text = Path(__file__).resolve().parents[2].joinpath("nginx", "audiencia.atvos.io.conf").read_text(encoding="utf-8")
-    assert "location /api/webhooks/" in text
+    assert "location /api/webhooks/" not in text
+    assert "manychat" not in text.lower()
     assert "proxy_pass http://127.0.0.1:8020;" in text
     assert "proxy_pass http://127.0.0.1:8020/;" not in text
     assert "proxy_pass http://127.0.0.1:8020/api/" not in text

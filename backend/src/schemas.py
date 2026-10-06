@@ -8,7 +8,6 @@ class ReelOut(BaseModel):
     permalink: str | None = None
     thumbnail_url: str | None = None
     published_at: str | None = None
-    keyword: str | None = None
     total_interacciones: int
     calificados: int
     pct_calificado: float
@@ -38,20 +37,3 @@ class RubricaOut(BaseModel):
 
 class RubricaIn(BaseModel):
     texto: str = Field(min_length=10, max_length=8000)
-
-
-class ManychatIn(BaseModel):
-    username: str | None = None
-    ig_username: str | None = None
-    user_name: str | None = None
-    keyword: str | None = None
-    token: str | None = None
-
-    model_config = {"extra": "allow"}
-
-
-class ManychatOut(BaseModel):
-    ok: bool
-    created: bool
-    reel_id: int
-    ig_username: str

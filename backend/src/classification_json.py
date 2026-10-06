@@ -6,7 +6,6 @@ import json
 import re
 
 ALLOWED_AVATARS = ("infoproductor", "growth_operator", "otro", "sin_datos")
-QUALIFIED_AVATARS = ("infoproductor", "growth_operator")
 
 
 class ClassificationParseError(ValueError):
@@ -82,15 +81,3 @@ def _validate_fields(data: dict) -> dict:
         "score": _as_score(data.get("score")),
         "motivo": motivo.strip()[:500],
     }
-
-
-def apply_rubric_gate(parsed: dict, verificado: bool | None) -> dict:
-    """La rúbrica exige cuenta verificada Y avatar infoproductor o growth operator.
-
-    Si el tilde no vino (None), no se considera verificado.
-    """
-    out = dict(parsed)
-    avatar_ok = out["avatar"] in QUALIFIED_AVATARS
-    if verificado is not True or not avatar_ok:
-        out["calificado"] = False
-    return out

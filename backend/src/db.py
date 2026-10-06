@@ -15,11 +15,8 @@ db = Database()
 _mapped = False
 
 RUBRICA_INICIAL = (
-    "Calificado = tiene cuenta verificada en IG Y su avatar es infoproductor "
-    "(vende cursos, mentorías o programas propios) o growth operator "
-    "(opera lanzamientos, ventas o escalado para creadores). "
-    "Señales: links a checkout, Hotmart, Calendly o aplicación; "
-    "bio que menciona clientes, programas o lanzamientos."
+    "Calificado = avatar infoproductor o growth operator, según bio, web y captions. "
+    "Más de 5.000 seguidores suma confianza, pero no es excluyente."
 )
 
 _COLUMN_DEFAULTS = (
@@ -28,7 +25,6 @@ _COLUMN_DEFAULTS = (
     "ALTER TABLE audiencia.reel ADD COLUMN IF NOT EXISTS permalink TEXT",
     "ALTER TABLE audiencia.reel ADD COLUMN IF NOT EXISTS thumbnail_url TEXT",
     "ALTER TABLE audiencia.reel ADD COLUMN IF NOT EXISTS published_at TIMESTAMP",
-    "ALTER TABLE audiencia.reel ADD COLUMN IF NOT EXISTS keyword TEXT",
     "ALTER TABLE audiencia.reel ADD COLUMN IF NOT EXISTS comentarios_sync_at TIMESTAMP",
     "ALTER TABLE audiencia.interaccion ADD COLUMN IF NOT EXISTS origen TEXT DEFAULT 'comentario'",
     "ALTER TABLE audiencia.interaccion ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()",

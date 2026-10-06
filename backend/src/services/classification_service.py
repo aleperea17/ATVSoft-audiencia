@@ -9,7 +9,7 @@ import tempfile
 
 from decouple import config
 
-from src.classification_json import ClassificationParseError, apply_rubric_gate, parse_claude_stdout
+from src.classification_json import ClassificationParseError, parse_claude_stdout
 
 logger = logging.getLogger("audiencia.claude")
 
@@ -42,7 +42,7 @@ username: {perfil.get("ig_username")}
 verificado: {verificado_txt}
 bio: {perfil.get("bio") or ""}
 website: {perfil.get("website") or ""}
-followers: {perfil.get("followers") if perfil.get("followers") is not None else "null"}
+followers_count: {perfil.get("followers") if perfil.get("followers") is not None else "null"}
 ultimos_captions:
 {captions_text}
 """
@@ -87,8 +87,7 @@ def classify_profile(perfil: dict, rubrica: str) -> dict | None:
     for attempt in (1, 2):
         try:
             stdout = _run_claude(prompt)
-            parsed = parse_claude_stdout(stdout)
-            return apply_rubric_gate(parsed, perfil.get("verificado"))
+            return parse_claude_stdout(stdout)
         except (ClassificationParseError, subprocess.TimeoutExpired, OSError) as exc:
             last_error = exc
             logger.warning(

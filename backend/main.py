@@ -5,8 +5,10 @@ bootstrap_environment()
 import asyncio
 import logging
 from contextlib import asynccontextmanager
+from zoneinfo import ZoneInfo
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 from decouple import config
 from fastapi import FastAPI
@@ -15,9 +17,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.controllers.health_controller import router as health_router
 from src.controllers.reels_controller import router as reels_router
 from src.controllers.rubrica_controller import router as rubrica_router
-from src.controllers.webhook_controller import router as webhook_router
 from src.db import init_db
 from src.services.pipeline_services import PipelineServices
+from src.services.token_watch_service import check_instagram_token
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 logger = logging.getLogger("audiencia")
@@ -46,6 +48,13 @@ async def lifespan(_app: FastAPI):
         max_instances=1,
         coalesce=True,
     )
+    scheduler.add_job(
+        check_instagram_token,
+        CronTrigger(hour=9, minute=0, timezone=ZoneInfo("America/Argentina/Buenos_Aires")),
+        id="audiencia-token-watch",
+        max_instances=1,
+        coalesce=True,
+    )
     scheduler.start()
     asyncio.get_running_loop().create_task(_scheduled_pipeline())
     logger.info("pipeline programado cada 30 minutos")
@@ -70,4 +79,3 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(reels_router)
 app.include_router(rubrica_router)
-app.include_router(webhook_router)

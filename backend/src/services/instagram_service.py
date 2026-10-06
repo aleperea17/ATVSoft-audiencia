@@ -9,13 +9,13 @@ from urllib.parse import quote
 
 from decouple import config
 
-from src.graph_errors import GraphAPIError, is_profile_unavailable, is_unsupported_verified_field
+from src.graph_errors import GraphAPIError
 from src.services.graph_client import request_json
 
 logger = logging.getLogger("audiencia.instagram")
 
 _USERNAME_RE = re.compile(r"^[A-Za-z0-9._]{1,30}$")
-_verified_supported: bool | None = None
+_DISCOVERY_FIELDS = "biography,website,followers_count,media.limit(8){caption}"
 
 
 def graph_version() -> str:
@@ -125,19 +125,11 @@ def fetch_comment_usernames(media_id: str) -> list[dict]:
     return found
 
 
-def _discovery_fields(include_verified: bool) -> str:
-    base = "biography,website,followers_count,media.limit(8){caption}"
-    if include_verified:
-        return base + ",is_verified"
-    return base
-
-
 def discover_profile(username: str) -> dict:
-    """Business Discovery. Si la cuenta no es profesional, GraphAPIError con perfil no disponible.
+    """Business Discovery. Si la cuenta no es profesional, GraphAPIError.
 
-    Devuelve verificado=None cuando el campo no viene (el caso documentado hoy).
+    verificado queda null: la API no devuelve el tilde.
     """
-    global _verified_supported
     creds = credentials()
     if creds is None:
         raise GraphAPIError("faltan IG_ACCESS_TOKEN o IG_USER_ID")
@@ -146,31 +138,10 @@ def discover_profile(username: str) -> dict:
     if not _USERNAME_RE.fullmatch(handle):
         raise GraphAPIError("username inválido para Business Discovery")
 
-    include_verified = _verified_supported is not False
-    try:
-        payload = _discovery_request(ig_user_id, token, handle, include_verified)
-    except GraphAPIError as exc:
-        if include_verified and is_unsupported_verified_field(str(exc)):
-            _verified_supported = False
-            logger.info("Business Discovery no acepta is_verified; se deja verificado=null")
-            payload = _discovery_request(ig_user_id, token, handle, False)
-        elif is_profile_unavailable(exc.http_status, exc.code, str(exc)):
-            raise
-        else:
-            raise
-
+    payload = _discovery_request(ig_user_id, token, handle)
     disco = payload.get("business_discovery") if isinstance(payload, dict) else None
     if not isinstance(disco, dict):
         raise GraphAPIError("Business Discovery no devolvió business_discovery", http_status=404, code=110)
-
-    verificado = None
-    if "is_verified" in disco:
-        _verified_supported = True
-        raw_flag = disco.get("is_verified")
-        verificado = bool(raw_flag) if isinstance(raw_flag, bool) else None
-    elif include_verified and _verified_supported is None:
-        _verified_supported = False
-        logger.info("Business Discovery omitió is_verified; verificado queda null")
 
     captions = []
     media = disco.get("media") if isinstance(disco.get("media"), dict) else {}
@@ -189,21 +160,16 @@ def discover_profile(username: str) -> dict:
         "website": disco.get("website") or None,
         "followers": followers,
         "ultimos_captions": captions,
-        "verificado": verificado,
+        "verificado": None,
         "tipo_cuenta": "profesional",
     }
 
 
-def _discovery_request(ig_user_id: str, token: str, username: str, include_verified: bool) -> dict:
-    fields = _discovery_fields(include_verified)
-    expansion = f"business_discovery.username({username}){{{fields}}}"
+def _discovery_request(ig_user_id: str, token: str, username: str) -> dict:
+    expansion = f"business_discovery.username({username}){{{_DISCOVERY_FIELDS}}}"
     url = (
         f"{_base()}/{quote(ig_user_id)}"
         f"?fields={quote(expansion, safe='{},._(),')}"
         f"&access_token={quote(token)}"
     )
     return request_json(url)
-
-
-def verified_field_supported() -> bool | None:
-    return _verified_supported

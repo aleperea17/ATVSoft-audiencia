@@ -40,7 +40,6 @@ class ReelsServices:
                         "permalink": reel.permalink,
                         "thumbnail_url": reel.thumbnail_url,
                         "published_at": iso_z(reel.published_at),
-                        "keyword": reel.keyword,
                         "total_interacciones": total,
                         "calificados": calificados,
                         "pct_calificado": pct_calificado(calificados, total),

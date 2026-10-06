@@ -5,8 +5,9 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 
+from decouple import config
 from pony.orm import db_session
 
 from src.graph_errors import GraphAPIError, GraphRateLimitError, is_profile_unavailable
@@ -23,12 +24,21 @@ from src.time_utils import utcnow
 logger = logging.getLogger("audiencia.pipeline")
 
 STALE_AFTER = timedelta(days=30)
-COMMENT_REELS_PER_RUN = 15
-ENRICH_PER_RUN = 12
-CLASSIFY_PER_RUN = 8
 BACKFILL_PAGES_PER_RUN = 4
 
 _lock = asyncio.Lock()
+
+
+def _optional_limit(name: str) -> int | None:
+    """None si la variable no está: en ese caso el pipeline no corta por cantidad."""
+    raw = (config(name, default="") or "").strip()
+    if not raw:
+        return None
+    try:
+        return max(int(raw), 0)
+    except ValueError:
+        logger.warning("%s=%r no es un entero; se procesa sin tope", name, raw)
+        return None
 
 
 def _is_stale(moment) -> bool:
@@ -52,6 +62,10 @@ class PipelineServices:
             await self._classify()
 
     async def _ingest_reels(self) -> None:
+        limit = _optional_limit("PIPELINE_MAX_REELS")
+        if limit is not None:
+            await self._ingest_newest_reels(limit)
+            return
         done, next_url = await asyncio.to_thread(_read_reel_cursor)
         # Con el historial ya cargado se refrescan 2 páginas (los reels más nuevos).
         pages = 2 if done else BACKFILL_PAGES_PER_RUN
@@ -74,6 +88,29 @@ class PipelineServices:
                 return
             if not done:
                 await asyncio.to_thread(_write_cursor, url, False)
+
+    async def _ingest_newest_reels(self, limit: int) -> None:
+        url = None
+        stored = 0
+        pages = 0
+        while stored < limit and pages < 40:
+            pages += 1
+            try:
+                page = await asyncio.to_thread(fetch_reel_page, url)
+            except GraphRateLimitError as exc:
+                logger.warning("ingesta de reels frenada por rate limit: %s", exc)
+                return
+            except GraphAPIError as exc:
+                logger.error("ingesta de reels falló: %s", exc)
+                return
+            room = limit - stored
+            items = page["items"][:room]
+            if items:
+                await asyncio.to_thread(_upsert_reels, items)
+                stored += len(items)
+            url = page["next_url"]
+            if not url:
+                return
 
     async def _ingest_comments(self) -> None:
         media_ids = await asyncio.to_thread(_reels_pending_comments)
@@ -166,9 +203,13 @@ def _upsert_reels(items: list[dict]) -> None:
 def _reels_pending_comments() -> list[tuple[str, int]]:
     with db_session:
         rows = list(Reel.select()[:])
-        rows.sort(key=lambda reel: (reel.comentarios_sync_at is not None, reel.comentarios_sync_at or utcnow()))
-        chosen = rows[:COMMENT_REELS_PER_RUN]
-        return [(reel.ig_media_id, reel.id) for reel in chosen]
+        limit = _optional_limit("PIPELINE_MAX_REELS")
+        if limit is not None:
+            rows.sort(key=lambda reel: reel.published_at or datetime.min, reverse=True)
+            rows = rows[:limit]
+        else:
+            rows.sort(key=lambda reel: (reel.comentarios_sync_at is not None, reel.comentarios_sync_at or utcnow()))
+        return [(reel.ig_media_id, reel.id) for reel in rows]
 
 
 def _touch_comment_sync(reel_id: int) -> None:
@@ -200,13 +241,14 @@ def _usernames_to_enrich() -> list[str]:
         seen: list[str] = []
         known = {row.ig_username for row in list(Interaccion.select()[:])}
         perfiles = {row.ig_username: row for row in list(Perfil.select()[:])}
+        limit = _optional_limit("PIPELINE_MAX_PERFILES")
         for username in sorted(known):
             perfil = perfiles.get(username)
             if perfil is not None and not _is_stale(perfil.enriquecido_at):
                 continue
-            seen.append(username)
-            if len(seen) >= ENRICH_PER_RUN:
+            if limit is not None and len(seen) >= limit:
                 break
+            seen.append(username)
         return seen
 
 
@@ -234,7 +276,7 @@ def _save_discovered(username: str, discovered: dict) -> None:
         perfil.website = discovered.get("website")
         perfil.followers = discovered.get("followers")
         perfil.ultimos_captions = json.dumps(discovered.get("ultimos_captions") or [], ensure_ascii=False)
-        perfil.verificado = discovered.get("verificado")
+        perfil.verificado = None
         perfil.tipo_cuenta = discovered.get("tipo_cuenta") or "profesional"
         perfil.enriquecido_at = utcnow()
         clasif = perfil.clasificacion
@@ -255,6 +297,7 @@ def _pending_profiles() -> tuple[str, list[dict]]:
         rows.sort(key=lambda item: item.id)
         rubrica = rows[0].texto if rows else ""
         pending = []
+        limit = _optional_limit("PIPELINE_MAX_PERFILES")
         for perfil in list(Perfil.select()[:]):
             if perfil.enriquecido_at is None:
                 continue
@@ -263,6 +306,8 @@ def _pending_profiles() -> tuple[str, list[dict]]:
                 continue
             if perfil.tipo_cuenta == "personal_o_inaccesible":
                 continue
+            if limit is not None and len(pending) >= limit:
+                break
             captions = []
             if perfil.ultimos_captions:
                 try:
@@ -283,8 +328,6 @@ def _pending_profiles() -> tuple[str, list[dict]]:
                     "tipo_cuenta": perfil.tipo_cuenta,
                 }
             )
-            if len(pending) >= CLASSIFY_PER_RUN:
-                break
         return rubrica, pending
 
 
