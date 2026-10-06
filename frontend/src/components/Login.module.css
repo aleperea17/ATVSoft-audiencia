@@ -9,23 +9,23 @@
 }
 
 .logo {
-  height: 85px;
+  height: 52px;
   width: auto;
-  margin-bottom: 40px;
+  margin-bottom: 22px;
   filter:
-    drop-shadow(0 0 3px #ff2a2a)
-    drop-shadow(0 0 8px #ff2a2a)
-    drop-shadow(0 0 16px #ff2a2a);
+    drop-shadow(0 0 2px #ff2a2a)
+    drop-shadow(0 0 5px #ff2a2a)
+    drop-shadow(0 0 10px #ff2a2a);
   animation: neon 4s ease-in-out infinite;
 }
 
 .card {
   position: relative;
-  width: min(500px, 100%);
-  padding: 40px;
+  width: min(360px, 100%);
+  padding: 22px;
   background: #0c0c0e;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
+  border-radius: 12px;
   box-shadow: 0 0 0 1px rgba(163, 20, 30, 0.28);
   overflow: hidden;
 }
@@ -41,32 +41,32 @@
 }
 
 .title {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   color: #fff;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.03em;
 }
 
 .label {
   display: block;
-  margin: 22px 0 8px;
+  margin: 14px 0 6px;
   color: #b5b5be;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.14em;
 }
 
 .input {
   width: 100%;
-  height: 56px;
-  padding: 0 16px;
+  height: 40px;
+  padding: 0 12px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #111214;
   color: #fafafa;
   font: inherit;
-  font-size: 16px;
+  font-size: 13px;
 }
 
 .input::placeholder {
@@ -80,15 +80,15 @@
 
 .submit {
   width: 100%;
-  height: 54px;
-  margin-top: 24px;
-  padding: 0 16px;
+  height: 40px;
+  margin-top: 16px;
+  padding: 0 12px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #a3141e;
   color: #fff;
   font: inherit;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.08em;
   cursor: pointer;
@@ -104,9 +104,9 @@
 }
 
 .error {
-  margin: 14px 0 0;
+  margin: 10px 0 0;
   color: #e63946;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.4;
 }
 
@@ -114,16 +114,16 @@
   0%,
   100% {
     filter:
-      drop-shadow(0 0 3px #ff2a2a)
-      drop-shadow(0 0 7px #ff2a2a)
-      drop-shadow(0 0 14px #ff2a2a);
+      drop-shadow(0 0 2px #ff2a2a)
+      drop-shadow(0 0 4px #ff2a2a)
+      drop-shadow(0 0 8px #ff2a2a);
   }
 
   50% {
     filter:
-      drop-shadow(0 0 4px #ff2a2a)
-      drop-shadow(0 0 10px #ff2a2a)
-      drop-shadow(0 0 18px #ff2a2a);
+      drop-shadow(0 0 2px #ff2a2a)
+      drop-shadow(0 0 6px #ff2a2a)
+      drop-shadow(0 0 12px #ff2a2a);
   }
 }
 
