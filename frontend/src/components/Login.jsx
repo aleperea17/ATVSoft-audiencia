@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { LoginError, login } from "../api";
-import logo from "../assets/atv-logo.svg";
+import logo from "../assets/atv-logo.png";
 import styles from "./Login.module.css";
 
 export default function Login({ onSuccess }) {

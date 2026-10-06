@@ -1,6 +1,6 @@
 # Login — ATV Audiencia
 
-La pantalla de login de los otros módulos no estaba en este workspace. Esta se armó con la referencia pedida. El rayo es un SVG propio para que el glow siga la forma y no un rectángulo.
+La pantalla de login de los otros módulos no estaba en este workspace. Esta se armó con la referencia pedida. El logo es el de ATV, con el fondo negro recortado para que el neón siga la forma.
 
 ![Login de ATV Audiencia](docs/login-atv.png)
 
@@ -8,7 +8,7 @@ La pantalla de login de los otros módulos no estaba en este workspace. Esta se 
 
 - `frontend/src/components/Login.jsx`
 - `frontend/src/components/Login.module.css`
-- `frontend/src/assets/atv-logo.svg`
+- `frontend/src/assets/atv-logo.png`
 - `frontend/src/App.jsx`
 - `frontend/src/App.module.css`
 - `frontend/src/api.js`

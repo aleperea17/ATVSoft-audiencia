@@ -9,14 +9,9 @@
 }
 
 .logo {
-  height: 70px;
+  height: 120px;
   width: auto;
-  margin-bottom: 22px;
-  filter:
-    drop-shadow(0 0 6px #ff2a2a)
-    drop-shadow(0 0 14px #ff2a2a)
-    drop-shadow(0 0 28px #ff2a2a);
-  animation: neon 4s linear infinite;
+  margin-bottom: 28px;
 }
 
 .card {
@@ -72,6 +67,11 @@
   color: #6b6b76;
 }
 
+.input:focus {
+  outline: 1px solid #e63946;
+  outline-offset: 0;
+}
+
 .submit {
   width: 100%;
   margin-top: 22px;
@@ -103,94 +103,3 @@
   line-height: 1.4;
 }
 
-@keyframes neon {
-  0%,
-  100% {
-    opacity: 1;
-    filter:
-      drop-shadow(0 0 6px #ff2a2a)
-      drop-shadow(0 0 14px #ff2a2a)
-      drop-shadow(0 0 26px #ff2a2a);
-  }
-
-  12%,
-  46% {
-    opacity: 1;
-    filter:
-      drop-shadow(0 0 8px #ff2a2a)
-      drop-shadow(0 0 18px #ff2a2a)
-      drop-shadow(0 0 36px #ff2a2a);
-  }
-
-  28%,
-  72% {
-    opacity: 1;
-    filter:
-      drop-shadow(0 0 5px #ff2a2a)
-      drop-shadow(0 0 12px #ff2a2a)
-      drop-shadow(0 0 22px #ff2a2a);
-  }
-
-  81% {
-    opacity: 1;
-    filter:
-      drop-shadow(0 0 6px #ff2a2a)
-      drop-shadow(0 0 14px #ff2a2a)
-      drop-shadow(0 0 28px #ff2a2a);
-  }
-
-  83% {
-    opacity: 0.35;
-    filter: drop-shadow(0 0 1px #ff2a2a);
-  }
-
-  85% {
-    opacity: 1;
-    filter:
-      drop-shadow(0 0 8px #ff2a2a)
-      drop-shadow(0 0 16px #ff2a2a)
-      drop-shadow(0 0 30px #ff2a2a);
-  }
-
-  87% {
-    opacity: 0.5;
-    filter: drop-shadow(0 0 2px #ff2a2a);
-  }
-
-  89% {
-    opacity: 0.2;
-    filter: none;
-  }
-
-  91% {
-    opacity: 1;
-    filter:
-      drop-shadow(0 0 7px #ff2a2a)
-      drop-shadow(0 0 16px #ff2a2a)
-      drop-shadow(0 0 32px #ff2a2a);
-  }
-
-  94% {
-    opacity: 0.4;
-    filter: drop-shadow(0 0 2px #ff2a2a);
-  }
-
-  96% {
-    opacity: 1;
-    filter:
-      drop-shadow(0 0 6px #ff2a2a)
-      drop-shadow(0 0 14px #ff2a2a)
-      drop-shadow(0 0 28px #ff2a2a);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .logo {
-    animation: none;
-    opacity: 1;
-    filter:
-      drop-shadow(0 0 6px #ff2a2a)
-      drop-shadow(0 0 14px #ff2a2a)
-      drop-shadow(0 0 28px #ff2a2a);
-  }
-}
