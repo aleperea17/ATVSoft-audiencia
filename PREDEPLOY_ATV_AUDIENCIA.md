@@ -33,7 +33,10 @@
 
 ```text
 .env.example
+backend/src/setup_env.py
 ```
+
+`.env` no está en el índice. `setup_env.py` aparece porque el nombre contiene `env`: es el cargador de variables, no un archivo de secretos.
 
 ## Repo
 
