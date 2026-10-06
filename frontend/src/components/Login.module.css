@@ -9,15 +9,20 @@
 }
 
 .logo {
-  height: 120px;
+  height: 85px;
   width: auto;
-  margin-bottom: 28px;
+  margin-bottom: 40px;
+  filter:
+    drop-shadow(0 0 3px #ff2a2a)
+    drop-shadow(0 0 8px #ff2a2a)
+    drop-shadow(0 0 16px #ff2a2a);
+  animation: neon 4s ease-in-out infinite;
 }
 
 .card {
   position: relative;
   width: min(500px, 100%);
-  padding: 32px 28px 28px;
+  padding: 40px;
   background: #0c0c0e;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 14px;
@@ -45,22 +50,23 @@
 
 .label {
   display: block;
-  margin: 18px 0 8px;
+  margin: 22px 0 8px;
   color: #b5b5be;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.14em;
 }
 
 .input {
   width: 100%;
-  padding: 14px;
+  height: 56px;
+  padding: 0 16px;
   border: 0;
   border-radius: 10px;
   background: #111214;
   color: #fafafa;
   font: inherit;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .input::placeholder {
@@ -74,14 +80,15 @@
 
 .submit {
   width: 100%;
-  margin-top: 22px;
-  padding: 14px;
+  height: 54px;
+  margin-top: 24px;
+  padding: 0 16px;
   border: 0;
   border-radius: 10px;
   background: #a3141e;
   color: #fff;
   font: inherit;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.08em;
   cursor: pointer;
@@ -101,5 +108,28 @@
   color: #e63946;
   font-size: 14px;
   line-height: 1.4;
+}
+
+@keyframes neon {
+  0%,
+  100% {
+    filter:
+      drop-shadow(0 0 3px #ff2a2a)
+      drop-shadow(0 0 7px #ff2a2a)
+      drop-shadow(0 0 14px #ff2a2a);
+  }
+
+  50% {
+    filter:
+      drop-shadow(0 0 4px #ff2a2a)
+      drop-shadow(0 0 10px #ff2a2a)
+      drop-shadow(0 0 18px #ff2a2a);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo {
+    animation: none;
+  }
 }
 
