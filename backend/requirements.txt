@@ -1,4 +1,5 @@
 fastapi>=0.115
+bcrypt>=4.2
 uvicorn>=0.32
 pony>=0.7.17
 psycopg2-binary>=2.9

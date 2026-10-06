@@ -14,6 +14,7 @@ from decouple import config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.controllers.auth_controller import router as auth_router
 from src.controllers.health_controller import router as health_router
 from src.controllers.reels_controller import router as reels_router
 from src.controllers.rubrica_controller import router as rubrica_router
@@ -77,5 +78,6 @@ app.add_middleware(
 )
 
 app.include_router(health_router)
+app.include_router(auth_router)
 app.include_router(reels_router)
 app.include_router(rubrica_router)

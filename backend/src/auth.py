@@ -22,8 +22,11 @@ from typing import Any
 from decouple import config
 from fastapi import HTTPException, Request, status
 
-COOKIE_NAME = "ecosystem_session"
+ECOSYSTEM_COOKIE = "ecosystem_session"
+AUDIENCIA_COOKIE = "audiencia_session"
+COOKIE_NAME = ECOSYSTEM_COOKIE
 _SKEW_SECONDS = 60
+SESSION_MAX_AGE = 7 * 24 * 60 * 60
 
 
 def _b64encode(raw: bytes) -> str:
@@ -76,6 +79,17 @@ def session_secret() -> str:
     return (config("ECOSYSTEM_SESSION_SECRET", default="") or "").strip()
 
 
+def audiencia_secret() -> str:
+    return (config("AUDIENCIA_SESSION_SECRET", default="") or "").strip()
+
+
 def require_session(request: Request) -> dict[str, Any]:
-    token = request.cookies.get(COOKIE_NAME, "")
-    return verify_session_token(token, session_secret())
+    """Acepta la cookie propia del módulo o la del ecosistema."""
+    propia = request.cookies.get(AUDIENCIA_COOKIE, "")
+    secret = audiencia_secret()
+    if propia and len(secret) >= 32:
+        try:
+            return verify_session_token(propia, secret)
+        except HTTPException:
+            pass
+    return verify_session_token(request.cookies.get(ECOSYSTEM_COOKIE, ""), session_secret())

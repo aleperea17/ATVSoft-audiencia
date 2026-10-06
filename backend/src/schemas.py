@@ -37,3 +37,8 @@ class RubricaOut(BaseModel):
 
 class RubricaIn(BaseModel):
     texto: str = Field(min_length=10, max_length=8000)
+
+
+class LoginIn(BaseModel):
+    username: str = Field(min_length=1, max_length=80)
+    password: str = Field(min_length=1, max_length=200)

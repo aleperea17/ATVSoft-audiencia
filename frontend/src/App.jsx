@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { AuthError, getCalificados, getReels } from "./api";
+import { AuthError, getCalificados, getReels, logout } from "./api";
 import LeadCard from "./components/LeadCard.jsx";
+import Login from "./components/Login.jsx";
 import ReelList from "./components/ReelList.jsx";
 import { LeadSkeletons, ReelSkeletons } from "./components/Skeletons.jsx";
 import { formatPct, reelTitle } from "./format";
@@ -126,20 +127,16 @@ export default function App() {
     window.history.replaceState({}, "", url);
   }
 
+  async function signOut() {
+    try {
+      await logout();
+    } finally {
+      setStatus("auth");
+    }
+  }
+
   if (status === "auth") {
-    return (
-      <main className={styles.gate}>
-        <section className={styles.gateCard}>
-          <p className={styles.brand}>
-            <span className={styles.brandMark}>ATV</span> Audiencia
-          </p>
-          <h1 className={styles.gateTitle}>Necesitás la sesión del ecosistema</h1>
-          <p className={styles.gateText}>
-            Entrá a ATV con tu usuario. Esta pantalla lee la misma cookie de sesión.
-          </p>
-        </section>
-      </main>
-    );
+    return <Login onSuccess={loadReels} />;
   }
 
   const selected = reels.find((reel) => reel.id === selectedId) || null;
@@ -147,9 +144,14 @@ export default function App() {
   return (
     <div className={styles.page}>
       <header className={styles.topbar}>
-        <p className={styles.brand}>
-          <span className={styles.brandMark}>ATV</span> Audiencia
-        </p>
+        <div className={styles.topbarInner}>
+          <p className={styles.brand}>
+            <span className={styles.brandMark}>ATV</span> Audiencia
+          </p>
+          <button type="button" className={styles.logout} onClick={signOut}>
+            Cerrar sesión
+          </button>
+        </div>
       </header>
       <main className={styles.shell}>
         {status === "error" ? (

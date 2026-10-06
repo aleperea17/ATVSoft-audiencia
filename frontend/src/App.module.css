@@ -10,12 +10,36 @@
   border-bottom: 1px solid var(--border);
 }
 
+.topbarInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-right: 16px;
+}
+
 .brand {
   margin: 0;
   padding: 16px 20px;
   font-size: 15px;
   font-weight: 600;
   color: var(--text);
+}
+
+.logout {
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logout:hover {
+  color: var(--text);
+  border-color: rgba(var(--surface-accent-rgb), 0.35);
 }
 
 .brandMark {
@@ -178,45 +202,6 @@
 
 .errorBox p {
   margin: 0;
-}
-
-.gate {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-}
-
-.gateCard {
-  position: relative;
-  width: min(440px, 100%);
-  padding: 28px 24px;
-  border-radius: 16px;
-  border: 1px solid var(--border-red);
-  background: var(--bg2);
-  box-shadow: 0 0 0 1px var(--red-faint), 0 12px 40px var(--red-glow);
-}
-
-.gateCard::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--border-red), transparent 55%);
-}
-
-.gateTitle {
-  margin: 18px 0 8px;
-  font-size: 22px;
-  letter-spacing: -0.03em;
-}
-
-.gateText {
-  margin: 0;
-  color: var(--text2);
-  line-height: 1.5;
 }
 
 @media (max-width: 860px) {

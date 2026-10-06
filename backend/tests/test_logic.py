@@ -59,6 +59,79 @@ def test_discovery_no_pide_verificado():
     assert "is_verified" not in _DISCOVERY_FIELDS
 
 
+def test_login_cookie_propia_y_limite(monkeypatch):
+    import bcrypt
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    from src.auth import AUDIENCIA_COOKIE, require_session, sign_session
+    from src.services.login_services import _failures, authenticate
+
+    _failures.clear()
+    password = "clave-de-prueba"
+    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    monkeypatch.setenv("AUDIENCIA_ADMIN_USER", "admin-prueba")
+    monkeypatch.setenv("AUDIENCIA_ADMIN_PASSWORD_HASH", hashed)
+    monkeypatch.setenv("AUDIENCIA_SESSION_SECRET", "b" * 32)
+    monkeypatch.setenv("ECOSYSTEM_SESSION_SECRET", "c" * 32)
+
+    app = FastAPI()
+    from src.controllers.auth_controller import router
+
+    app.include_router(router)
+    client = TestClient(app)
+    bad = client.post("/api/auth/login", json={"username": "admin-prueba", "password": "incorrecta"})
+    assert bad.status_code == 401
+    ok = client.post("/api/auth/login", json={"username": "admin-prueba", "password": password})
+    assert ok.status_code == 200
+    cookie = ok.headers["set-cookie"]
+    assert f"{AUDIENCIA_COOKIE}=" in cookie
+    assert "ecosystem_session=" not in cookie
+    assert "HttpOnly" in cookie
+    assert "Secure" in cookie
+    assert "samesite=lax" in cookie.lower()
+
+    out = client.post("/api/auth/logout")
+    assert "audiencia_session=" in out.headers["set-cookie"]
+    assert "Max-Age=0" in out.headers["set-cookie"]
+
+    _failures.clear()
+    for _ in range(5):
+        with pytest.raises(HTTPException) as failure:
+            authenticate("admin-prueba", "incorrecta", "10.0.0.8")
+        assert failure.value.status_code == 401
+    with pytest.raises(HTTPException) as blocked:
+        authenticate("admin-prueba", password, "10.0.0.8")
+    assert blocked.value.status_code == 429
+
+    propia = sign_session({"sub": "admin-prueba", "exp": int(time.time()) + 60}, "b" * 32)
+    ecosistema = sign_session({"sub": "ana", "exp": int(time.time()) + 60}, "c" * 32)
+    assert require_session(_request(f"audiencia_session={propia}"))["sub"] == "admin-prueba"
+    assert require_session(_request(f"ecosystem_session={ecosistema}"))["sub"] == "ana"
+    assert require_session(_request(f"audiencia_session=rota; ecosystem_session={ecosistema}"))["sub"] == "ana"
+    with pytest.raises(HTTPException):
+        require_session(_request(""))
+
+
+def _request(cookie_header: str):
+    from starlette.requests import Request
+
+    scope = {
+        "type": "http",
+        "asgi": {"version": "3.0"},
+        "http_version": "1.1",
+        "method": "GET",
+        "scheme": "http",
+        "path": "/",
+        "raw_path": b"/",
+        "query_string": b"",
+        "headers": [(b"cookie", cookie_header.encode())] if cookie_header else [],
+        "client": ("127.0.0.1", 5000),
+        "server": ("test", 80),
+    }
+    return Request(scope)
+
+
 def test_nginx_api_no_recorta_el_prefijo():
     from pathlib import Path
 
