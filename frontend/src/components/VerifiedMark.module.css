@@ -1,0 +1,6 @@
+.mark {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  color: var(--accent);
+}

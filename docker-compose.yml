@@ -1,0 +1,51 @@
+services:
+  audiencia-db:
+    image: postgres:18
+    container_name: audiencia-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      # Postgres 18 guarda los datos en un subdirectorio de esta ruta.
+      # Montar /var/lib/postgresql/data deja el contenedor en restart loop.
+      - audiencia-pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  backend:
+    build: ./backend
+    container_name: audiencia-backend
+    restart: always
+    env_file:
+      - .env
+    environment:
+      DB_HOST: audiencia-db
+    ports:
+      - "${BACKEND_PORT:-8020}:8000"
+    depends_on:
+      audiencia-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  frontend:
+    build: ./frontend
+    container_name: audiencia-frontend
+    restart: always
+    ports:
+      - "${FRONTEND_PORT:-3020}:80"
+    depends_on:
+      - backend
+
+volumes:
+  audiencia-pgdata:

@@ -1,0 +1,73 @@
+.skel {
+  display: block;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--bg3) 0%, var(--bg4) 50%, var(--bg3) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 88px;
+  gap: 16px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.line {
+  composes: skel;
+  height: 12px;
+}
+
+.lineWide {
+  composes: line;
+  width: 72%;
+}
+
+.lineMid {
+  composes: line;
+  width: 48%;
+}
+
+.bar {
+  composes: skel;
+  height: 4px;
+  width: 100%;
+  border-radius: 99px;
+}
+
+.pct {
+  composes: skel;
+  height: 52px;
+  border-radius: 12px;
+}
+
+.card {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.avatar {
+  composes: skel;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}

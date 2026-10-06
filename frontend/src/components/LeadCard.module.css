@@ -1,0 +1,78 @@
+.card {
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  background: var(--bg3);
+  transition: border-color 0.15s ease;
+}
+
+.card:hover {
+  border-color: rgba(var(--surface-accent-rgb), 0.28);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.userLine {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.user {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user:hover {
+  color: var(--red-light);
+}
+
+.bio {
+  margin: 0;
+  color: var(--text2);
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.chip {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+}

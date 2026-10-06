@@ -1,0 +1,84 @@
+/* Tokens tomados de ATV-MKT (frontend/src/app/globals.css). El repo manda sobre el rojo de referencia. */
+
+:root {
+  --red: #e63946;
+  --red-light: #ff4d5a;
+  --red-dark: #b71c1c;
+  --red-glow: rgba(230, 57, 70, 0.12);
+  --red-faint: rgba(230, 57, 70, 0.06);
+  --accent: #e63946;
+  --accent-glow: rgba(230, 57, 70, 0.14);
+  --accent-faint: rgba(230, 57, 70, 0.06);
+  --border-red: rgba(230, 57, 70, 0.2);
+  --surface-accent-rgb: 230, 57, 70;
+
+  --bg: #050505;
+  --bg2: #0c0c0e;
+  --bg3: #141416;
+  --bg4: #1e1e22;
+
+  --border: rgba(255, 255, 255, 0.05);
+  --border2: rgba(255, 255, 255, 0.08);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border);
+
+  --text: #fafafa;
+  --text2: #a1a1aa;
+
+  --topbar-bg: #0c0c0e;
+  --nav-hover: rgba(255, 255, 255, 0.03);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+a {
+  font-family: inherit;
+}
+
+::selection {
+  background: rgba(230, 57, 70, 0.3);
+  color: var(--text);
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}
+
+:focus-visible {
+  outline: 1px solid var(--border-red);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
